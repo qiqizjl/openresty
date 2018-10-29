@@ -1,0 +1,12 @@
+diff -uNr -x .git source/src/http/ngx_http_upstream.c new/src/http/ngx_http_upstream.c
+--- source/src/http/ngx_http_upstream.c	2018-10-30 01:38:21.000000000 +0800
++++ new/src/http/ngx_http_upstream.c	2018-10-30 01:59:36.000000000 +0800
+@@ -2243,7 +2243,7 @@
+ 
+ #endif
+ 
+-    if (u->header_sent && !u->conf->preserve_output) {
++    if (u->request_body_sent && !u->conf->preserve_output) {
+         u->write_event_handler = ngx_http_upstream_dummy_handler;
+ 
+         (void) ngx_handle_write_event(c->write, 0);

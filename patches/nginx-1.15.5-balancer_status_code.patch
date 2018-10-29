@@ -1,0 +1,68 @@
+diff -uNr -x .git source/src/http/ngx_http_upstream.c new/src/http/ngx_http_upstream.c
+--- source/src/http/ngx_http_upstream.c	2018-10-30 01:38:21.000000000 +0800
++++ new/src/http/ngx_http_upstream.c	2018-10-30 02:17:59.000000000 +0800
+@@ -1533,6 +1533,11 @@
+         return;
+     }
+ 
++    if (rc >= NGX_HTTP_SPECIAL_RESPONSE) {
++        ngx_http_upstream_finalize_request(r, u, rc);
++        return;
++    }
++
+     u->state->peer = u->peer.name;
+ 
+     if (rc == NGX_BUSY) {
+diff -uNr -x .git source/src/http/ngx_http_upstream.h new/src/http/ngx_http_upstream.h
+--- source/src/http/ngx_http_upstream.h	2018-10-30 01:38:21.000000000 +0800
++++ new/src/http/ngx_http_upstream.h	2018-10-30 02:19:07.000000000 +0800
+@@ -432,5 +432,10 @@
+ extern ngx_conf_bitmask_t  ngx_http_upstream_cache_method_mask[];
+ extern ngx_conf_bitmask_t  ngx_http_upstream_ignore_headers_masks[];
+ 
++#ifndef HAVE_BALANCER_STATUS_CODE_PATCH
++#define HAVE_BALANCER_STATUS_CODE_PATCH
++#endif
++
++
+ 
+ #endif /* _NGX_HTTP_UPSTREAM_H_INCLUDED_ */
+diff -uNr -x .git source/src/stream/ngx_stream.h new/src/stream/ngx_stream.h
+--- source/src/stream/ngx_stream.h	2018-10-30 01:38:21.000000000 +0800
++++ new/src/stream/ngx_stream.h	2018-10-30 02:17:59.000000000 +0800
+@@ -27,6 +27,7 @@
+ 
+ 
+ #define NGX_STREAM_OK                        200
++#define NGX_STREAM_SPECIAL_RESPONSE          300
+ #define NGX_STREAM_BAD_REQUEST               400
+ #define NGX_STREAM_FORBIDDEN                 403
+ #define NGX_STREAM_INTERNAL_SERVER_ERROR     500
+diff -uNr -x .git source/src/stream/ngx_stream_proxy_module.c new/src/stream/ngx_stream_proxy_module.c
+--- source/src/stream/ngx_stream_proxy_module.c	2018-10-30 01:38:21.000000000 +0800
++++ new/src/stream/ngx_stream_proxy_module.c	2018-10-30 02:17:59.000000000 +0800
+@@ -704,6 +704,11 @@
+         return;
+     }
+ 
++    if (rc >= NGX_STREAM_SPECIAL_RESPONSE) {
++        ngx_stream_proxy_finalize(s, rc);
++        return;
++    }
++
+     u->state->peer = u->peer.name;
+ 
+     if (rc == NGX_BUSY) {
+diff -uNr -x .git source/src/stream/ngx_stream_upstream.h new/src/stream/ngx_stream_upstream.h
+--- source/src/stream/ngx_stream_upstream.h	2018-10-30 01:38:21.000000000 +0800
++++ new/src/stream/ngx_stream_upstream.h	2018-10-30 02:17:59.000000000 +0800
+@@ -151,5 +151,9 @@
+ 
+ extern ngx_module_t  ngx_stream_upstream_module;
+ 
++#ifndef HAVE_BALANCER_STATUS_CODE_PATCH
++#define HAVE_BALANCER_STATUS_CODE_PATCH
++#endif
++
+ 
+ #endif /* _NGX_STREAM_UPSTREAM_H_INCLUDED_ */
